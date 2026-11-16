@@ -1,7 +1,6 @@
 
 import json
 from pathlib import Path
-
 from sentineltrap.analyzer import summarize_events, analyze_sessions
 
 

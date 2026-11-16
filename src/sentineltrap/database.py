@@ -93,3 +93,48 @@ def insert_events(
         connection.commit()
 
     return inserted_count
+
+
+def get_events(db_path: str = "sentineltrap.db") -> list[dict]:
+    """Retrieve all stored security events from SQLite."""
+
+    initialize_database(db_path)
+
+    with sqlite3.connect(db_path) as connection:
+        rows = connection.execute(
+            """
+            SELECT raw_event
+            FROM security_events
+            ORDER BY id ASC
+            """
+        ).fetchall()
+
+    events = []
+
+    for row in rows:
+        event = json.loads(row[0])
+        events.append(event)
+
+    return events
+
+
+def get_events_by_session(
+    session_id: str,
+    db_path: str = "sentineltrap.db"
+) -> list[dict]:
+    """Retrieve stored events belonging to a specific SSH session."""
+
+    initialize_database(db_path)
+
+    with sqlite3.connect(db_path) as connection:
+        rows = connection.execute(
+            """
+            SELECT raw_event
+            FROM security_events
+            WHERE session_id = ?
+            ORDER BY id ASC
+            """,
+            (session_id,)
+        ).fetchall()
+
+    return [json.loads(row[0]) for row in rows]
